@@ -1,0 +1,63 @@
+register_lines:
+  abus:
+    offset: 64
+    regs:
+      - pc
+      - sp
+      - hl
+  load:
+    offset: 256
+    regs:
+      - mem
+      - pc
+      - sp
+      - t
+      - a
+      - b
+      - h
+      - l
+  dbus:
+    offset: 4096
+    regs:
+      - mem
+      - pch
+      - pcl
+      - sph
+      - spl
+      - t
+      - a
+      - b
+      - h
+      - l
+
+control_lines:
+  - nxti
+  - pcinc
+  - halt
+
+# ph0 hardwired to pcinc, abus(pc)
+# so the ph array actually starts at element 1
+instructions:
+  NOP:
+    op: 0
+    ph:
+    - nxti
+  HLT:
+    op: 0xff
+    ph:
+    - halt
+  JMP:
+    op: 0x80
+    ph:
+    - load(t), pcinc, abus(pc)
+    - load(pc), abus(pc)
+  LDAD:
+    op: 0x01
+    ph:
+    - abus(pc), dbus(mem), load(a), pcinc
+  MVAB:
+    op: 0x10
+    ph:
+    - dbus(a), load(b)
+
+
