@@ -12,12 +12,13 @@ use Data::Dump;
 
 my $data = YAML::XS::LoadFile("idecode.yaml");
 
-use constant DEBUG => 1;
-use constant BITSIZE => 16;
-use constant PHASES  => 4;
+use constant DEBUG     => 1;
+use constant BITSIZE   => 16;
+use constant MAXPHASES => 8;
+use constant ROMSIZE   => MAXPHASES*256;
 my $regoffset = { load => 2**8, bus => 2**12 };
 
-my @ROM = map { 0 } (0..1023);
+my @ROM = map { 0 } (0..ROMSIZE);
 
 
 my $control_lines = parse_control_lines($data);
@@ -37,7 +38,7 @@ parse_instructions($data);
 
 open my $img, '>', 'idecode.img' or die;
 say $img "v3.0 hex words addressed";
-for my $l (0 .. (1024/16)-1) {
+for my $l (0 .. (ROMSIZE/16)-1) {
 	my $y = $l*16;
 	printf($img "%03x:", $y);
 	for my $x (0 .. 15) {
@@ -79,20 +80,28 @@ sub parse_registers($data)
 
 sub parse_instructions($data)
 {
-	my %inst = $data->{instructions}->%*;
-	dd %inst;
-	while (my ($mnemonic, $i) = each %inst) {
-		dd $i;
-		my $op = $i->{op} // die;
+	my @inst = $data->{instructions}->@*;
+	dd @inst;
+	my $op = 0;
+	my %done;
+	for my $i (@inst) {
+		DEBUG and dd($i);
+		my $mnemonic = $i->{mne} // die;
+		$op = $i->{op} ? hex($i->{op}) : $op+1;
+		die sprintf("Duplicate opcode %02x, first used for %s, redefined for %s\n",
+						$op, $done{$op}, $mnemonic)
+			if $done{$op};
+
 		my @phases = $i->{ph}->@*;
 		my $n = 1;
 		for my $p (@phases) {
 			my $v = parse_phase($p);
 			$v |= $control_lines->{nxti}
 				if $n == @phases;
-			printf "$op\[$n\] => %04X\n", $v;
-			$ROM[hex($op)*PHASES+$n++] = $v;
+			printf "%02X\[$n\] => %04X\n", $op, $v;
+			$ROM[$op*MAXPHASES+$n++] = $v;
 		}
+		$done{$op} = $mnemonic;
 	}	
 }
 

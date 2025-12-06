@@ -1,17 +1,20 @@
 register_lines:
   abus:
-    offset: 64
+    offset: 32
     regs:
       - pc
       - sp
       - hl
+      - t
   load:
     offset: 256
     regs:
       - mem
       - pc
-      - sp
-      - t
+      - sph
+      - spl
+      - th
+      - tl
       - a
       - b
       - h
@@ -24,7 +27,7 @@ register_lines:
       - pcl
       - sph
       - spl
-      - t
+      - tl
       - a
       - b
       - h
@@ -34,30 +37,67 @@ control_lines:
   - nxti
   - pcinc
   - halt
+  - spop
+  - spup
 
-# ph0 hardwired to pcinc, abus(pc)
-# so the ph array actually starts at element 1
+# ph0 hardwired to pcinc, abus(pc), dbus(mem), load(IR)
 instructions:
-  NOP:
-    op: 0
-    ph:
-    - nxti
-  HLT:
-    op: 0xff
-    ph:
-    - halt
-  JMP:
-    op: 0x80
-    ph:
-    - load(t), pcinc, abus(pc)
-    - load(pc), abus(pc)
-  LDAD:
-    op: 0x01
+#  NOP:
+#    op: 0
+#    ph:
+#    - nxti
+  - mne: LDAD
+    op: 0x00
     ph:
     - abus(pc), dbus(mem), load(a), pcinc
-  MVAB:
+  - mne: LDBD
+    ph:
+    - abus(pc), dbus(mem), load(b), pcinc
+  - mne: LDHD
+    ph:
+    - abus(pc), dbus(mem), load(h), pcinc
+  - mne: LDYD
+    ph:
+    - abus(pc), dbus(mem), load(l), pcinc
+  - mne: STA
+    op: 0x04
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(a), load(mem)
+
+  - mne: MVAB
     op: 0x10
     ph:
     - dbus(a), load(b)
+  - mne: LDSPD
+    op: 0x20
+    ph:
+    - load(sph), pcinc, abus(pc), dbus(mem)
+    - load(spl), pcinc, abus(pc), dbus(mem)
+  - mne: HLT
+    op: 0xff
+    ph:
+    - halt
+  - mne: JMP
+    op: 0x80
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(pc), abus(pc), dbus(mem)
+  - mne: JSR
+    op: 0x81
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - load(mem), abus(sp), dbus(pch), spop
+    - load(mem), abus(sp), dbus(pcl), spop
+    - load(pc), dbus(tl)
+  - mne: RET
+    op: 0x82
+    ph:
+    - spop, spup
+    - load(tl), abus(sp), dbus(mem), spop, spup
+    - load(th), abus(sp), dbus(mem)
+    - load(pc), dbus(tl)
 
 
