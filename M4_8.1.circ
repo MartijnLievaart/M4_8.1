@@ -523,6 +523,9 @@
     <comp lib="0" loc="(1910,570)" name="Tunnel">
       <a name="label" val="DREAD"/>
     </comp>
+    <comp lib="0" loc="(1990,220)" name="Tunnel">
+      <a name="label" val="DWRITE"/>
+    </comp>
     <comp lib="0" loc="(200,1210)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="DATA"/>
@@ -914,6 +917,10 @@
     <comp lib="1" loc="(1900,570)" name="OR Gate">
       <a name="size" val="30"/>
     </comp>
+    <comp lib="1" loc="(1970,180)" name="AND Gate">
+      <a name="facing" val="north"/>
+      <a name="size" val="30"/>
+    </comp>
     <comp lib="1" loc="(270,1530)" name="NOR Gate">
       <a name="inputs" val="6"/>
     </comp>
@@ -1012,8 +1019,15 @@
       <a name="addrWidth" val="10"/>
       <a name="appearance" val="classic"/>
       <a name="contents">addr/data: 10 8
-0 41 4 4 0 80 0 2
-8*0 82
+ff 48 4 4 0 0 65 4
+4 0 0 6c 4 4 0 0
+6c 4 4 0 0 6f 4 4
+0 0 20 4 4 0 0 77
+4 4 0 0 6f 4 4 0
+0 72 4 4 0 0 6c 4
+4 0 0 64 4 4 0 0
+21 4 4 0 0 a 4 4
+0 ff
 </a>
       <a name="label" val="BOOTROM"/>
       <a name="labelvisible" val="true"/>
@@ -1079,9 +1093,14 @@
     <comp lib="5" loc="(1120,290)" name="Button">
       <a name="facing" val="south"/>
     </comp>
+    <comp lib="5" loc="(1130,300)" name="Button">
+      <a name="facing" val="south"/>
+    </comp>
     <comp lib="5" loc="(1140,140)" name="Hex Digit Display"/>
+    <comp lib="5" loc="(1140,310)" name="Button">
+      <a name="facing" val="south"/>
+    </comp>
     <comp lib="5" loc="(1180,140)" name="Hex Digit Display"/>
-    <comp lib="5" loc="(1200,60)" name="Hex Digit Display"/>
     <comp lib="5" loc="(1210,290)" name="Button">
       <a name="facing" val="south"/>
     </comp>
@@ -1365,7 +1384,7 @@
     <wire from="(1740,660)" to="(1740,670)"/>
     <wire from="(1740,670)" to="(1770,670)"/>
     <wire from="(1750,150)" to="(1750,160)"/>
-    <wire from="(1750,160)" to="(1960,160)"/>
+    <wire from="(1750,160)" to="(1970,160)"/>
     <wire from="(1750,280)" to="(1750,300)"/>
     <wire from="(1750,280)" to="(1760,280)"/>
     <wire from="(1750,310)" to="(1750,330)"/>
@@ -1389,7 +1408,10 @@
     <wire from="(190,340)" to="(200,340)"/>
     <wire from="(1900,570)" to="(1910,570)"/>
     <wire from="(1940,220)" to="(1960,220)"/>
-    <wire from="(1960,160)" to="(1960,220)"/>
+    <wire from="(1960,210)" to="(1960,220)"/>
+    <wire from="(1970,160)" to="(1970,180)"/>
+    <wire from="(1980,210)" to="(1980,220)"/>
+    <wire from="(1980,220)" to="(1990,220)"/>
     <wire from="(200,1120)" to="(200,1150)"/>
     <wire from="(200,1150)" to="(250,1150)"/>
     <wire from="(200,1210)" to="(250,1210)"/>
