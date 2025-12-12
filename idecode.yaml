@@ -46,8 +46,38 @@ instructions:
 #    op: 0
 #    ph:
 #    - nxti
-  - mne: LDAD
+  - mne: LDA
     op: 0x00
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(mem), load(a)
+  - mne: LDB
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(mem), load(b)
+  - mne: LDH
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(mem), load(h)
+  - mne: LDL
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(mem), load(l)
+
+  - mne: LDAI
+    op: 0x04
+    ph:
+    - abus(hl), dbus(mem), load(a)
+  - mne: LDBI
+    ph:
+    - abus(hl), dbus(mem), load(b)
+
+  - mne: LDAD
+    op: 0x08
     ph:
     - abus(pc), dbus(mem), load(a), pcinc
   - mne: LDBD
@@ -59,26 +89,58 @@ instructions:
   - mne: LDYD
     ph:
     - abus(pc), dbus(mem), load(l), pcinc
+
   - mne: STA
-    op: 0x04
+    op: 0x10
     ph:
     - load(th), pcinc, abus(pc), dbus(mem)
     - load(tl), pcinc, abus(pc), dbus(mem)
     - abus(t), dbus(a), load(mem)
-
-  - mne: MVAB
-    op: 0x10
+  - mne: STB
     ph:
-    - dbus(a), load(b)
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(b), load(mem)
+  - mne: STH
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(h), load(mem)
+  - mne: STL
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - abus(t), dbus(l), load(mem)
+
+  - mne: STAI
+    op: 0x14
+    ph:
+    - abus(hl), dbus(a), load(mem)
+  - mne: STBI
+    ph:
+    - abus(hl), dbus(b), load(mem)
+
   - mne: LDSPD
     op: 0x20
     ph:
     - load(sph), pcinc, abus(pc), dbus(mem)
     - load(spl), pcinc, abus(pc), dbus(mem)
-  - mne: HLT
-    op: 0xff
+
+  - mne: MVAB
+    op: 0x50
     ph:
-    - halt
+    - dbus(a), load(b)
+
+  - mne: MVBA
+    ph:
+    - dbus(b), load(a)
+
+  - mne: XAB
+    ph:
+    - dbus(b), load(tl)
+    - dbus(a), load(b)
+    - dbus(tl), load(a)
+
   - mne: JMP
     op: 0x80
     ph:
@@ -100,4 +162,8 @@ instructions:
     - load(th), abus(sp), dbus(mem)
     - load(pc), dbus(tl)
 
+  - mne: HLT
+    op: 0xff
+    ph:
+    - halt
 
