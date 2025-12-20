@@ -1,0 +1,19 @@
+	NOP
+START:
+	LD A,'H'
+	ST 0x0400,A
+	LD A,'e'
+	ST 0x0400,A
+	LD A,'l'
+	ST 0x0400,A
+	LD A,'l'
+	ST 0x0400,A
+	LD A,'o'
+	ST 0x0400,A
+	LD A,'r'
+	ST 0x0400,A
+	LD A,'l'
+	ST 0x0400,A
+	LD A,'d'
+	ST 0x0400,A
+	JMP START

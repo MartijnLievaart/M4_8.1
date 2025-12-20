@@ -1,13 +1,22 @@
+#
+#
+#
+
+bitsize: 24
+phases:  8
+control_lines_offset: 2048
+
 register_lines:
   abus:
-    offset: 32
+    offset: 1
     regs:
       - pc
       - sp
       - hl
       - t
+      - halt
   load:
-    offset: 256
+    offset: 8
     regs:
       - mem
       - pc
@@ -20,7 +29,7 @@ register_lines:
       - h
       - l
   dbus:
-    offset: 4096
+    offset: 128
     regs:
       - mem
       - pch
@@ -32,20 +41,19 @@ register_lines:
       - b
       - h
       - l
+      - s
+      - alu
+
 
 control_lines:
   - nxti
   - pcinc
-  - halt
+  - abus
   - spop
   - spup
 
 # ph0 hardwired to pcinc, abus(pc), dbus(mem), load(IR)
 instructions:
-#  NOP:
-#    op: 0
-#    ph:
-#    - nxti
   - mne: LDA
     op: 0x00
     ph:
@@ -86,7 +94,7 @@ instructions:
   - mne: LDHD
     ph:
     - abus(pc), dbus(mem), load(h), pcinc
-  - mne: LDYD
+  - mne: LDLD
     ph:
     - abus(pc), dbus(mem), load(l), pcinc
 
@@ -162,8 +170,13 @@ instructions:
     - load(th), abus(sp), dbus(mem)
     - load(pc), dbus(tl)
 
+  - mne: NOP
+    op: 0xfe
+    ph:
+    - nxti
   - mne: HLT
     op: 0xff
     ph:
-    - halt
+    # halt tagged on abus as special
+    - abus(halt)
 
