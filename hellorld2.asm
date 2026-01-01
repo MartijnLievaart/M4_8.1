@@ -1,0 +1,33 @@
+;
+START:
+	LD HL,STRINGDATA
+	LD SP,0xffff
+	JSR PRINT
+	HLT
+;
+; HL points to string to print
+PRINT:
+	LD A,(HL)
+	LD B,0
+	TST
+	JZ RET
+	LD 0x0400,A
+	LD A,L
+	LD B,1
+	CCLR
+	ADD
+	LD L,A
+	JNC PRINT
+	LD A,H
+	LD B,0
+	ADD
+	LD H,A
+	JMP PRINT
+RET:
+	RET
+
+;
+STRINGDATA:
+DATA "Hellorld" 10 0
+
+

@@ -25,8 +25,8 @@ my @c = (
 my $ad=0;
 my @mem;
 for my $op (@c) {
-	for my $a (0..MASK) {
-		for my $b (0..MASK) {
+	for my $b (0..MASK) {
+		for my $a (0..MASK) {
 			for my $c (0..1) {
 				$mem[$ad] = $op->{x}($a, $b, $c) & RMASK;
 				#say sprintf("%04X %02X %X %X %X %s", $ad, $mem[$ad], $a, $b, $c, $op->{op});
@@ -39,9 +39,14 @@ for my $op (@c) {
 #dd \@mem;
 #say scalar @mem;
 open my $fh, '>', 'alu.img' or die;
-binmode $fh;
+say $fh 'v3.0 hex words addressed';
 my $n=0;
-for (@mem) {
-	printf $fh "%02X", $_ ;
-	print $fh (++$n%16==0) ? "\n" : ' ';
+
+while (@mem) {
+	printf $fh "%03X: ", $n ;
+	for (0..15) {
+		printf $fh "%02X ", shift(@mem);
+	}
+	print $fh "\n";
+	$n += 16;
 }

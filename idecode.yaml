@@ -5,19 +5,47 @@
 bitsize: 24
 phases:  8
 control_lines_offset: 2048
+alias:
+  abus(pc): op0(abuspc)
+  abus(sp): op0(abussp)
+  abus(hl): op0(abushl)
+  abus(t):  op0(abust)
+  halt:     op0(halt)
 
 register_lines:
-  abus:
+  op0:
     offset: 1
     regs:
-      - pc
-      - sp
-      - hl
-      - t
+      - ''
+      - abuspc
+      - abussp
+      - abushl
+      - abust
       - halt
+      - cnst1
+      - cnstff
+  aluop:
+    offset: 1
+    regs:
+      - ADD
+      - SUB
+      - AND
+      - OR
+      - XOR
+      - INV
+      - SHL
+      - SHR
+  cond:
+    offset: 1
+    regs:
+      - Z
+      - NZ
+      - C
+      - NC
   load:
     offset: 8
     regs:
+      - ''
       - mem
       - pc
       - sph
@@ -28,9 +56,13 @@ register_lines:
       - b
       - h
       - l
+      - c
+      - z
+
   dbus:
     offset: 128
     regs:
+      - ''
       - mem
       - pch
       - pcl
@@ -43,14 +75,17 @@ register_lines:
       - l
       - s
       - alu
+      - cnst
 
 
 control_lines:
+  - nxtic
   - nxti
   - pcinc
-  - abus
+  - op0
   - spop
   - spup
+  - aluen
 
 # ph0 hardwired to pcinc, abus(pc), dbus(mem), load(IR)
 instructions:
@@ -133,21 +168,95 @@ instructions:
     ph:
     - load(sph), pcinc, abus(pc), dbus(mem)
     - load(spl), pcinc, abus(pc), dbus(mem)
+  - mne: LDHLD
+    ph:
+    - load(h), pcinc, abus(pc), dbus(mem)
+    - load(l), pcinc, abus(pc), dbus(mem)
 
   - mne: MVAB
     op: 0x50
     ph:
     - dbus(a), load(b)
-
+  - mne: MVAL
+    ph:
+    - dbus(a), load(l)
+  - mne: MVAH
+    ph:
+    - dbus(a), load(h)
   - mne: MVBA
     ph:
     - dbus(b), load(a)
+  - mne: MVBL
+    ph:
+    - dbus(b), load(l)
+  - mne: MVBH
+    ph:
+    - dbus(b), load(h)
+  - mne: MVLA
+    ph:
+    - dbus(l), load(a)
+  - mne: MVLB
+    ph:
+    - dbus(l), load(b)
+  - mne: MVLH
+    ph:
+    - dbus(l), load(h)
+  - mne: MVHA
+    ph:
+    - dbus(h), load(a)
+  - mne: MVHB
+    ph:
+    - dbus(h), load(b)
+  - mne: MVHL
+    ph:
+    - dbus(h), load(l)
 
   - mne: XAB
     ph:
     - dbus(b), load(tl)
     - dbus(a), load(b)
     - dbus(tl), load(a)
+
+  - mne: CCLR
+    ph:
+    - dbus(cnst), load(c)
+  - mne: CSET
+    ph:
+    - dbus(cnst), op0(cnst1), load(c)
+  - mne: ZCLR
+    ph:
+    - dbus(cnst), load(z)
+  - mne: ZSET
+    ph:
+    - dbus(cnst), op0(cnst1), load(z)
+
+  - mne: TST
+    ph:
+    - aluen, aluop(SUB)
+  - mne: ADD
+    ph:
+    - aluen, aluop(ADD), dbus(alu), load(a)
+  - mne: SUB
+    ph:
+    - aluen, aluop(SUB), dbus(alu), load(a)
+  - mne: AND
+    ph:
+    - aluen, aluop(AND), dbus(alu), load(a)
+  - mne: OR
+    ph:
+    - aluen, aluop(OR), dbus(alu), load(a)
+  - mne: XOR
+    ph:
+    - aluen, aluop(XOR), dbus(alu), load(a)
+  - mne: INV
+    ph:
+    - aluen, aluop(INV), dbus(alu), load(a)
+  - mne: SHL
+    ph:
+    - aluen, aluop(SHL), dbus(alu), load(a)
+  - mne: SHR
+    ph:
+    - aluen, aluop(SHR), dbus(alu), load(a)
 
   - mne: JMP
     op: 0x80
@@ -169,6 +278,31 @@ instructions:
     - load(tl), abus(sp), dbus(mem), spop, spup
     - load(th), abus(sp), dbus(mem)
     - load(pc), dbus(tl)
+  - mne: JZ
+    op: 0x83
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - cond(NZ), nxtic
+    - load(pc), dbus(tl)
+  - mne: JNZ
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - cond(Z), nxtic
+    - load(pc), dbus(tl)
+  - mne: JC
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - cond(NC), nxtic
+    - load(pc), dbus(tl)
+  - mne: JNC
+    ph:
+    - load(th), pcinc, abus(pc), dbus(mem)
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - cond(C), nxtic
+    - load(pc), dbus(tl)
 
   - mne: NOP
     op: 0xfe
@@ -177,6 +311,5 @@ instructions:
   - mne: HLT
     op: 0xff
     ph:
-    # halt tagged on abus as special
-    - abus(halt)
+    - halt
 

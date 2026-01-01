@@ -25,6 +25,7 @@ my $romsize   = $maxphases*256;
 
 my @ROM = (0) x $romsize;
 
+my $alias = $data->{alias} // {};
 
 my $control_lines = parse_control_lines($data);
 $debug and dd $control_lines;
@@ -71,7 +72,7 @@ sub parse_registers($data)
 	while (my ($control_line, $register_data) = each %regdata) {
 		my $offset = $register_data->{offset} // die "No offset for $control_line";
 		my @regs = ($register_data->{regs} // die "No regs for $control_line")->@*;
-		my $n=1;
+		my $n=0;
 		for (@regs) {
 			$reg->{$control_line}->{$_} = ($n++) * $offset;
 		}
@@ -113,6 +114,7 @@ sub parse_phase($phase)
 	$debug and dd @flags;
 	my $res;
 	for my $f (@flags) {
+		$f = $alias->{$f} if $alias->{$f};
 		if ($f =~ /(.*)\((.*)\)/) {
 			$f = $1;
 			my $reg = $2;
