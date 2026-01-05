@@ -7,6 +7,16 @@ no warnings qw(experimental::signatures);
 
 use YAML::XS;
 use Data::Dump;
+use Getopt::Long qw/:config gnu_getopt/;
+
+my $outfile = 'image.img';
+
+GetOptions(
+	'outfile|o=s' => \$outfile,
+) or usage();
+
+usage() if @ARGV != 1;
+my $infile = $ARGV[0];
 
 my $ilist = YAML::XS::LoadFile('instructions.yaml');
 $ilist = { reverse %$ilist };
@@ -29,36 +39,16 @@ my @parser = (
 	[ qr/(JMP|JSR|JN?[ZC])\s+$ad16/, '$1 $2'    ],
 	[ qr/(NOP|HLT|RET)/,             '$1'       ],
 	[ qr/([CZ](?:CLR|SET))/,         '$1'       ],
-	[ qr/(TST|ADD|SUB|AND|OR|XOR|INV|SHL|SHR)/,
-                                         '$1'       ],
+	[ qr/TST\s+A\s*,\s*B/,           'TSTZAB'   ],
+	[ qr/TST\s+A\s*,\s*0/,           'TSTZA0'   ],
+	[ qr/TST\s+A\s*,\s*$val8/,       'TSTZAD $1'],
+	[ qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*B/,
+                                         '$1B'      ],
+	[ qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
+                                         '$1D $2'   ],
 
 );
 
-
-# 0: LDA
-# 1: LDB
-# 2: LDH
-# 3: LDL
-# 4: LDAI
-# 5: LDBI
-# 8: LDAD
-# 9: LDBD
-# 10: LDHD
-# 11: LDYD
-# 16: STA
-# 17: STB
-# 18: STH
-# 19: STL
-# 20: STAI
-# 21: STBI
-# 32: LDSPD
-# 80: MVAB
-# 81: MVBA
-# 82: XAB
-# 128: JMP
-# 129: JSR
-# 130: RET
-# 255: HLT
 
 my %labels;
 
@@ -100,10 +90,10 @@ sub parse_val
 	die "Internal error, cannot recognize argument $_ on line $.";
 }
 
-
+open my $in, '<', $infile or die "Cannot open $infile: $!\n";
 
 LINE:
-while (<>) {
+while (<$in>) {
 	chomp;
 	s/^\s+//;
 	s/\s+$//;
@@ -144,7 +134,13 @@ for (@patch) {
 	$mem[$org++] = $target&0x00ff;
 }
 #dd @mem;
-open my $fh, '>', 'image.img' or die $!;
+open my $fh, '>', $outfile or die $!;
 binmode $fh;
 print $fh chr for @mem;
 
+exit;
+
+sub usage()
+{
+	die "usage: $0 [ -o <imagefile> ] <asmfile>\n";
+}

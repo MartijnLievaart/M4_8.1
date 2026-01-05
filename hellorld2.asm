@@ -7,22 +7,19 @@ START:
 ;
 ; HL points to string to print
 PRINT:
-	LD A,(HL)
-	LD B,0
-	TST
-	JZ RET
-	LD 0x0400,A
-	LD A,L
-	LD B,1
+	LD	A,(HL)
+	TST	A,0
+	JZ	RET
+	LD	0x0400,A
 	CCLR
-	ADD
-	LD L,A
-	JNC PRINT
-	LD A,H
-	LD B,0
-	ADD
-	LD H,A
-	JMP PRINT
+	LD	A,L
+	ADD     A,1
+	LD	L,A
+	JNC	PRINT
+	LD	A,H
+	ADD	A,0
+	LD	H,A
+	JMP	PRINT
 RET:
 	RET
 

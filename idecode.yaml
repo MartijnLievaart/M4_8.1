@@ -230,24 +230,64 @@ instructions:
     ph:
     - dbus(cnst), op0(cnst1), load(z)
 
-  - mne: TST
+  - mne: TSTZA0
     ph:
+    - dbus(cnst), load(tl)
     - aluen, aluop(SUB)
-  - mne: ADD
+  - mne: TSTZAB
     ph:
+    - dbus(b), load(tl)
+    - aluen, aluop(SUB)
+  - mne: TSTZAD
+    ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(SUB)
+
+  - mne: ADDB
+    ph:
+    - dbus(b), load(tl)
     - aluen, aluop(ADD), dbus(alu), load(a)
-  - mne: SUB
+  - mne: ADDD
     ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(ADD), dbus(alu), load(a)
+
+  - mne: SUBB
+    ph:
+    - dbus(b), load(tl)
     - aluen, aluop(SUB), dbus(alu), load(a)
-  - mne: AND
+  - mne: SUBD
     ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(SUB), dbus(alu), load(a)
+
+  - mne: ANDB
+    ph:
+    - dbus(b), load(tl)
     - aluen, aluop(AND), dbus(alu), load(a)
-  - mne: OR
+  - mne: ANDD
     ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(AND), dbus(alu), load(a)
+
+  - mne: ORB
+    ph:
+    - dbus(b), load(tl)
     - aluen, aluop(OR), dbus(alu), load(a)
-  - mne: XOR
+  - mne: ORD
     ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(OR), dbus(alu), load(a)
+
+  - mne: XORB
+    ph:
+    - dbus(b), load(tl)
     - aluen, aluop(XOR), dbus(alu), load(a)
+  - mne: XORD
+    ph:
+    - load(tl), pcinc, abus(pc), dbus(mem)
+    - aluen, aluop(XOR), dbus(alu), load(a)
+
   - mne: INV
     ph:
     - aluen, aluop(INV), dbus(alu), load(a)
