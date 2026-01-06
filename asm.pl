@@ -106,7 +106,7 @@ while (<$in>) {
 	};
 
 	if (s/^DATA\s+//) {
-		parse_val for split ' ';
+		parse_val for val_split($_, 1);
 		next LINE;
 	}
 	my $line = $_;
@@ -114,7 +114,7 @@ while (<$in>) {
 		my ($re, $repl) = $_->@*;
 		if ($line =~ m{^$re$}) {
 			eval "\$line =~ s{^$re\$}{$repl}"; die if $@;
-			my @x = split(' ', $line);
+			my @x = val_split($line);
 			#dd @x;
 			my $mne = shift @x;
 			my $opc = $ilist->{$mne}//die "Internal error, unknown mnemonic '$mne'";
@@ -134,11 +134,43 @@ for (@patch) {
 	$mem[$org++] = $target&0x00ff;
 }
 #dd @mem;
-open my $fh, '>', $outfile or die $!;
-binmode $fh;
-print $fh chr for @mem;
+open my $img, '>', $outfile or die $!;
+say $img "v3.0 hex words addressed";
+for my $l (0 .. int(@mem/16)-1) {
+	my $y = $l*16;
+	printf($img "%04x:", $y);
+	for my $x (0 .. 15) {
+		printf($img " %02x", $mem[$y+$x]//0);
+	}
+	print($img "\n");
+}	
+#binmode $fh;
+#print $fh chr for @mem;
 
 exit;
+
+sub val_split($line, $allow_dq=0)
+{
+	my @ret;
+	$line =~ s/^\s+//;
+	while ($line gt '') {
+
+		if ($line =~ s/^("[^"]+")//) {
+			die "String not allowed here" unless $allow_dq;
+			push @ret, $1;
+		} if ($line =~ s/^'\\''//) {
+			push @ret, ord("'");
+		} if ($line =~ s/^('[^']')//) {
+			push @ret, $1;
+		} elsif ($line =~ s/(\S+)//) {
+			push @ret, $1;
+		} else {
+			die "Cannot parse values: '$line'\n";
+		}
+		$line =~ s/^\s+//;
+	}
+	@ret;
+}
 
 sub usage()
 {
