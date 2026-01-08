@@ -55,7 +55,7 @@ my %labels;
 my $org=0;
 my @mem;
 my @patch;
-
+my %lst;
 
 sub parse_val
 {
@@ -94,6 +94,7 @@ open my $in, '<', $infile or die "Cannot open $infile: $!\n";
 
 LINE:
 while (<$in>) {
+	my $orgline = $_;
 	chomp;
 	s/^\s+//;
 	s/\s+$//;
@@ -106,6 +107,7 @@ while (<$in>) {
 	};
 
 	if (s/^DATA\s+//) {
+		$lst{$org} = $orgline;
 		parse_val for val_split($_, 1);
 		next LINE;
 	}
@@ -113,6 +115,7 @@ while (<$in>) {
 	for (@parser) {
 		my ($re, $repl) = $_->@*;
 		if ($line =~ m{^$re$}) {
+			$lst{$org} = $orgline;
 			eval "\$line =~ s{^$re\$}{$repl}"; die if $@;
 			my @x = val_split($line);
 			#dd @x;
@@ -136,7 +139,7 @@ for (@patch) {
 #dd @mem;
 open my $img, '>', $outfile or die $!;
 say $img "v3.0 hex words addressed";
-for my $l (0 .. int(@mem/16)-1) {
+for my $l (0 .. int((@mem+15)/16)-1) {
 	my $y = $l*16;
 	printf($img "%04x:", $y);
 	for my $x (0 .. 15) {
@@ -144,13 +147,29 @@ for my $l (0 .. int(@mem/16)-1) {
 	}
 	print($img "\n");
 }	
-#binmode $fh;
-#print $fh chr for @mem;
+
+
+my %slebal;
+while (my ($lbl, $o) = each %labels) {
+	push $slebal{$o}->@*, $lbl;
+}
+
+open my $list, '>', 'list.lst' or die $!;
+for my $org (sort { $a <=> $b } keys %lst) {
+	if ($slebal{$org}) {
+		for ($slebal{$org}->@*) {
+			printf $list "%04X\t%s:\n", $org, $_;
+		}
+	}
+	printf $list "%04X\t%s", $org, $lst{$org};
+}
 
 exit;
 
 sub val_split($line, $allow_dq=0)
 {
+	say 'val_split';
+dd $line;
 	my @ret;
 	$line =~ s/^\s+//;
 	while ($line gt '') {
@@ -158,9 +177,9 @@ sub val_split($line, $allow_dq=0)
 		if ($line =~ s/^("[^"]+")//) {
 			die "String not allowed here" unless $allow_dq;
 			push @ret, $1;
-		} if ($line =~ s/^'\\''//) {
+		} elsif ($line =~ s/^'\\''//) {
 			push @ret, ord("'");
-		} if ($line =~ s/^('[^']')//) {
+		} elsif ($line =~ s/^('[^']')//) {
 			push @ret, $1;
 		} elsif ($line =~ s/(\S+)//) {
 			push @ret, $1;

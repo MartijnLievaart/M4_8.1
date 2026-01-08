@@ -3,3 +3,4 @@ instructions.yaml
 .M4_8.1.circ.autosave
 *.swp
 *~
+*.lst

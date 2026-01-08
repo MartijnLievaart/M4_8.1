@@ -65,6 +65,8 @@ TSTJMP:
         LD 0x0400,A
         LD A,'K'
         LD 0x0400,A
+        LD A,10
+        LD 0x0400,A
 	JMP OK
 
 TSTJSR:
@@ -93,13 +95,17 @@ TSTJSR:
 
 OK:
 
+	LD	HL,TXTALLOK
+	JSR	PRINT
 	HLT
+	JMP	START
 ;
 ; HL points to string to print
 PRINT:
+;HLT
 	LD	A,(HL)
 	TST	A,0
-	JZ	RET
+	JZ	PRINT_RET
 	LD	0x0400,A
 	CCLR
 	LD	A,L
@@ -110,12 +116,11 @@ PRINT:
 	ADD	A,0
 	LD	H,A
 	JMP	PRINT
-RET:
+PRINT_RET:
 	RET
-
+;FILLER:
+;	DATA "XXXXXXX"
 ;
-TXTSUB:
-	DATA "JSR OK" 10 0
-TXTRET:
-	DATA "RET OK" 10 0
+TXTALLOK:
+	DATA "All tests passed" 10 0
 
