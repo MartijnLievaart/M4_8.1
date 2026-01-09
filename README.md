@@ -1,6 +1,6 @@
 # M4_8.1 - A simple 8 bit CPU
 
-This is a definition for a simple 8 bit CPU build in Logisim Evolution. You can run it and write programs for it in assembler.
+This is a definition for a simple 8 bit CPU build in Logisim Evolution. You can write programs for it in assembler and run them in the simulater.
 
 ## Quick start
 

@@ -26,26 +26,26 @@ my $reg8 = qr/([ABHL])/;
 my $val8 = qr/('.'|0x[[:xdigit:]]{2}|25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})/;
 my $ad16 = qr/(0x[[:xdigit:]]{4}|\w+)/;
 my @parser = (
-	[ qr/LD\s+$reg8\s*,\s*$val8/,    'LD$1D $2' ],
-	[ qr/LD\s+$reg8\s*,\s*$reg8/,    'MV$2$1'   ],
-	[ qr/LD\s+$reg8\s*,\s*$ad16/,    'LD$1 $2'  ],
-	[ qr/LD\s+([AB])\s*,\s*\(HL\)/,  'LD$1I'    ],
-	[ qr/LD\s+$ad16\s*,$reg8/,       'ST$2 $1'  ],
-	[ qr/LD\s+\(HL\)\s*,\s*([AB])/,  'ST$1I'    ],
-	[ qr/LD\s+SP\s*,\s*$ad16/,       'LDSPD $1' ],
-	[ qr/LD\s+HL\s*,\s*$ad16/,       'LDHLD $1' ],
-	[ qr/XCH\s+A\s*,\s*B/,           'XAB'      ],
-	[ qr/XCH\s+B\s*,\s*A/,           'XAB'      ],
-	[ qr/(JMP|JSR|JN?[ZC])\s+$ad16/, '$1 $2'    ],
-	[ qr/(NOP|HLT|RET)/,             '$1'       ],
-	[ qr/([CZ](?:CLR|SET))/,         '$1'       ],
-	[ qr/TST\s+A\s*,\s*B/,           'TSTZAB'   ],
-	[ qr/TST\s+A\s*,\s*0/,           'TSTZA0'   ],
-	[ qr/TST\s+A\s*,\s*$val8/,       'TSTZAD $1'],
-	[ qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*B/,
-                                         '$1B'      ],
-	[ qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
-                                         '$1D $2'   ],
+	{ match =>  qr/LD\s+$reg8\s*,\s*$val8/,    replace => 'LD$1D $2' },
+	{ match =>  qr/LD\s+$reg8\s*,\s*$reg8/,    replace => 'MV$2$1'   },
+	{ match =>  qr/LD\s+$reg8\s*,\s*$ad16/,    replace => 'LD$1 $2'  },
+	{ match =>  qr/LD\s+([AB])\s*,\s*\(HL\)/,  replace => 'LD$1I'    },
+	{ match =>  qr/LD\s+$ad16\s*,$reg8/,       replace => 'ST$2 $1'  },
+	{ match =>  qr/LD\s+\(HL\)\s*,\s*([AB])/,  replace => 'ST$1I'    },
+	{ match =>  qr/LD\s+SP\s*,\s*$ad16/,       replace => 'LDSPD $1' },
+	{ match =>  qr/LD\s+HL\s*,\s*$ad16/,       replace => 'LDHLD $1' },
+	{ match =>  qr/XCH\s+A\s*,\s*B/,           replace => 'XAB'      },
+	{ match =>  qr/XCH\s+B\s*,\s*A/,           replace => 'XAB'      },
+	{ match =>  qr/(JMP|JSR|JN?[ZC])\s+$ad16/, replace => '$1 $2'    },
+	{ match =>  qr/(NOP|HLT|RET)/,             replace => '$1'       },
+	{ match =>  qr/([CZ](?:CLR|SET))/,         replace => '$1'       },
+	{ match =>  qr/TST\s+A\s*,\s*B/,           replace => 'TSTZAB'   },
+	{ match =>  qr/TST\s+A\s*,\s*0/,           replace => 'TSTZA0'   },
+	{ match =>  qr/TST\s+A\s*,\s*$val8/,       replace => 'TSTZAD $1'},
+	{ match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*B/,
+                                         	   replace => '$1B'      },
+	{ match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
+                                                   replace => '$1D $2'   },
 
 );
 
@@ -108,12 +108,12 @@ while (<$in>) {
 
 	if (s/^DATA\s+//) {
 		$lst{$org} = $orgline;
-		parse_val for val_split($_, 1);
+		parse_val for val_split($_);
 		next LINE;
 	}
 	my $line = $_;
 	for (@parser) {
-		my ($re, $repl) = $_->@*;
+		my ($re, $repl) = @{$_}{'match', 'replace'};
 		if ($line =~ m{^$re$}) {
 			$lst{$org} = $orgline;
 			eval "\$line =~ s{^$re\$}{$repl}"; die if $@;
@@ -166,16 +166,13 @@ for my $org (sort { $a <=> $b } keys %lst) {
 
 exit;
 
-sub val_split($line, $allow_dq=0)
+sub val_split($line)
 {
-	say 'val_split';
-dd $line;
 	my @ret;
 	$line =~ s/^\s+//;
 	while ($line gt '') {
 
 		if ($line =~ s/^("[^"]+")//) {
-			die "String not allowed here" unless $allow_dq;
 			push @ret, $1;
 		} elsif ($line =~ s/^'\\''//) {
 			push @ret, ord("'");
