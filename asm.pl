@@ -26,26 +26,194 @@ my $reg8 = qr/([ABHL])/;
 my $val8 = qr/('.'|0x[[:xdigit:]]{2}|25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})/;
 my $ad16 = qr/(0x[[:xdigit:]]{4}|\w+)/;
 my @parser = (
-	{ match =>  qr/LD\s+$reg8\s*,\s*$val8/,    replace => 'LD$1D $2' },
-	{ match =>  qr/LD\s+$reg8\s*,\s*$reg8/,    replace => 'MV$2$1'   },
-	{ match =>  qr/LD\s+$reg8\s*,\s*$ad16/,    replace => 'LD$1 $2'  },
-	{ match =>  qr/LD\s+([AB])\s*,\s*\(HL\)/,  replace => 'LD$1I'    },
-	{ match =>  qr/LD\s+$ad16\s*,$reg8/,       replace => 'ST$2 $1'  },
-	{ match =>  qr/LD\s+\(HL\)\s*,\s*([AB])/,  replace => 'ST$1I'    },
-	{ match =>  qr/LD\s+SP\s*,\s*$ad16/,       replace => 'LDSPD $1' },
-	{ match =>  qr/LD\s+HL\s*,\s*$ad16/,       replace => 'LDHLD $1' },
-	{ match =>  qr/XCH\s+A\s*,\s*B/,           replace => 'XAB'      },
-	{ match =>  qr/XCH\s+B\s*,\s*A/,           replace => 'XAB'      },
-	{ match =>  qr/(JMP|JSR|JN?[ZC])\s+$ad16/, replace => '$1 $2'    },
-	{ match =>  qr/(NOP|HLT|RET)/,             replace => '$1'       },
-	{ match =>  qr/([CZ](?:CLR|SET))/,         replace => '$1'       },
-	{ match =>  qr/TST\s+A\s*,\s*B/,           replace => 'TSTZAB'   },
-	{ match =>  qr/TST\s+A\s*,\s*0/,           replace => 'TSTZA0'   },
-	{ match =>  qr/TST\s+A\s*,\s*$val8/,       replace => 'TSTZAD $1'},
-	{ match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*B/,
-                                         	   replace => '$1B'      },
-	{ match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
-                                                   replace => '$1D $2'   },
+	{
+                match =>  qr/LD\s+$reg8\s*,\s*$val8/,
+                replace => 'LD$1D $2',
+                doc => <<HERE,
+LD <reg8>, <value>
+
+Load an 8 bit register with a direct value.
+HERE
+	},
+	{
+                match =>  qr/LD\s+$reg8\s*,\s*$reg8/,
+                replace => 'MV$2$1',
+                doc => <<HERE,
+LD <reg8>, <reg8>
+
+Load an 8 bit register from another 8 bit register.
+HERE
+        },
+	{
+                match =>  qr/LD\s+$reg8\s*,\s*$ad16/,
+                replace => 'LD$1 $2',
+                doc => <<HERE,
+LD <reg8>, <address or label>
+
+Load an 8 bit register from a memory location.
+HERE
+        },
+	{
+                match =>  qr/LD\s+([AB])\s*,\s*\(HL\)/,
+                replace => 'LD$1I',
+                doc => <<HERE,
+LD <reg8>, (HL)
+
+Load an 8 bit register from a memory location pointed to by HL.
+HERE
+        },
+	{
+                match =>  qr/LD\s+$ad16\s*,$reg8/,
+                replace => 'ST$2 $1',
+                doc => <<HERE,
+LD <address or label>, <reg8>
+
+Store an 8 bit register to a memory location.
+HERE
+        },
+	{
+                match =>  qr/LD\s+\(HL\)\s*,\s*([AB])/,
+                replace => 'ST$1I',
+                doc => <<HERE,
+LD (HL), <reg8>
+
+Store an 8 bit register to a memory location pointed to HL.
+HERE
+        },
+	{
+                match =>  qr/LD\s+SP\s*,\s*$ad16/,
+                replace => 'LDSPD $1',
+                doc => <<HERE,
+LD SP, <address or label>
+
+Load SP from a memory location.
+HERE
+        },
+	{
+                match =>  qr/LD\s+HL\s*,\s*$ad16/,
+                replace => 'LDHLD $1',
+                doc => <<HERE,
+LD HL, <address or label>
+
+Load HL from a memory location.
+HERE
+        },
+	{
+                match =>  qr/XCH\s+A\s*,\s*B/,
+                replace => 'XAB',
+                doc => <<HERE,
+XCH A,B
+
+Exchange registers A and B
+HERE
+        },
+	{
+                match =>  qr/(JMP|JSR|JN?[ZC])\s+$ad16/,
+                replace => '$1 $2',
+                doc => <<HERE,
+LD SP,<address or label>
+
+Load SP from a memory location.
+HERE
+        },
+	{
+                match =>  qr/(NOP)/,
+                replace => '$1',
+                doc => <<HERE,
+NOP
+
+Do nothing
+HERE
+        },
+	{
+                match =>  qr/(HLT)/,
+                replace => '$1',
+                doc => <<HERE,
+HLT
+
+Stop running until the run button is pressed.
+HERE
+        },
+	{
+                match =>  qr/(RET)/,
+                replace => '$1',
+                doc => <<HERE,
+RET
+
+Return from subroutine
+HERE
+        },
+	{
+                match =>  qr/([CZ](?:CLR|SET))/,
+                replace => '$1',
+                doc => <<HERE,
+CCLR, CSET, ZCLR, ZSET
+
+Clear or set the carry or zero flag.
+HERE
+        },
+	{
+                match =>  qr/TST\s+A\s*,\s*B/,
+                replace => 'TSTZAB',
+                doc => <<HERE,
+TST A,B
+
+Test the A and B register, set the zero flag if they are equal, carry if B is larger than A.
+HERE
+        },
+	{
+                match =>  qr/TST\s+A\s*,\s*0/,
+                replace => 'TSTZA0',
+                doc => <<HERE,
+TST A,0
+
+Test if A is zero. If so, set the zero flag.
+HERE
+        },
+	{
+                match =>  qr/TST\s+A\s*,\s*$val8/,
+                replace => 'TSTZAD $1',
+                doc => <<HERE,
+TST A,<value>
+
+Test the A and a direct value, set the zero flag if they are equal, carry if the value is larger than A.
+HERE
+        },
+	{
+                match =>  qr/(INV|SHL|SHR)/,
+                replace => '$1',
+                doc => <<HERE,
+INV, SHL, SHR
+
+Invert, shift left or shift right of the A register. Shifts use theh carry flag both as input on one side as output on the other.
+HERE
+        },
+	{
+                match =>  qr/(ADD|SUB|AND|OR|XOR)\s+A\s*,\s*B/,
+                replace => '$1B',
+                doc => <<HERE,
+ADD A,B
+SUB A,B
+AND A,B
+OR  A,B
+XOR A,B
+
+Execute the arithmetic or logic instruction on registers A and B.
+HERE
+        },
+	{
+                match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
+                replace => '$1D $2',
+                doc => <<HERE,
+ADD A,<value>
+SUB A,<value>
+AND A,<value>
+OR  A,<value>
+XOR A,<value>
+
+Execute the arithmetic or logic instruction on registers A and a direct value.
+HERE
+        },
 
 );
 
