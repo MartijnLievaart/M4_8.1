@@ -1,0 +1,129 @@
+------
+
+ADD A,<value>
+SUB A,<value>
+AND A,<value>
+OR  A,<value>
+XOR A,<value>
+
+Execute the arithmetic or logic instruction on registers A and a direct value.
+
+------
+
+ADD A,B
+SUB A,B
+AND A,B
+OR  A,B
+XOR A,B
+
+Execute the arithmetic or logic instruction on registers A and B.
+
+------
+
+CCLR, CSET, ZCLR, ZSET
+
+Clear or set the carry or zero flag.
+
+------
+
+HLT
+
+Stop running until the run button is pressed.
+
+------
+
+INV, SHL, SHR
+
+Invert, shift left or shift right of the A register. Shifts use theh carry flag both as input on one side as output on the other.
+
+------
+
+LD (HL),<reg8>
+
+Store an 8 bit register to a memory location pointed to HL.
+
+------
+
+LD <address or label>,<reg8>
+
+Store an 8 bit register to a memory location.
+
+------
+
+LD <reg8>,(HL)
+
+Load an 8 bit register from a memory location pointed to by HL.
+
+------
+
+LD <reg8>,<address or label>
+
+Load an 8 bit register from a memory location.
+
+------
+
+LD <reg8>,<reg8>
+
+Load an 8 bit register from another 8 bit register.
+
+------
+
+LD <reg8>,<value>
+
+Load an 8 bit register with a direct value.
+
+------
+
+LD HL,<address or label>
+
+Load HL with a 16 bit value.
+
+------
+
+LD SP,<address or label>
+
+Load SP from a memory location.
+
+------
+
+LD SP,<address or label>
+
+Load SP with a 16 bit value.
+
+------
+
+NOP
+
+Do nothing
+
+------
+
+RET
+
+Return from subroutine
+
+------
+
+TST A,0
+
+Test if A is zero. If so, set the zero flag.
+
+------
+
+TST A,<value>
+
+Test the A and a direct value, set the zero flag if they are equal, carry if the value is larger than A.
+
+------
+
+TST A,B
+
+Test the A and B register, set the zero flag if they are equal, carry if B is larger than A.
+
+------
+
+XCH A,B
+
+Exchange registers A and B
+
+

@@ -12,7 +12,7 @@ This is a definition for a simple 8 bit CPU build in Logisim Evolution. You can 
 
 ## Philosopy
 
-I wanted to do something fun with old 8 bit logic. I decided to build my own 8 bit CPU. At first in a siimulator, and who knows, maybe later in real TTL hardware?
+I wanted to do something fun with old 8 bit logic. I decided to build my own 8 bit CPU. At first in a simulator, and who knows, maybe later in real TTL hardware?
 
 I decided the following would apply:
 
@@ -24,6 +24,7 @@ Use only 70s technoligy. Do note I don't have to abide by the same constraints a
 
 * No fancy instructions that can also be done with a few already existing instructions.
 * Should be a full fledged processor capable of doing the same as other 8 bit processors from the ERA.
+* This also means this is not CISC, not RISC, but MISC, minimal instruction set computer. Or marginal, whatever rocks your boat. It kind of has the disadvantages of both CISC and RISC without offering any of the benefits, except that it's simple.
 
 ## Simulator limitations/differences
 
@@ -39,7 +40,7 @@ Logisim is not good at recognizing race conditions, so there may be race conditi
 
 ### Undefined states
 
-Logisim applies an undefined state when it detects it cannot initialize a circular dependency. In reality, this would result in a random result, whcih sometimes is not inapproriate, sometimes you do not care about the initial value.
+Logisim applies an undefined state when it detects it cannot initialize a circular dependency. In reality, this would result in a random result, which sometimes is not inapproriate, sometimes you do not care about the initial value.
 
 However, sometimes you do, so it's good Logisim flags this. It means we have to work with this even if we don't care about the initial state. In the end, that means I use predefined flip-flops (which do not suffer from this) instead of simpler hand build circuits in some places, especially the clock logic.
 

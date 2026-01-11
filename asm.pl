@@ -10,17 +10,12 @@ use Data::Dump;
 use Getopt::Long qw/:config gnu_getopt/;
 
 my $outfile = 'image.img';
+my $docs;
 
 GetOptions(
 	'outfile|o=s' => \$outfile,
+	'docs'        => \$docs,
 ) or usage();
-
-usage() if @ARGV != 1;
-my $infile = $ARGV[0];
-
-my $ilist = YAML::XS::LoadFile('instructions.yaml');
-$ilist = { reverse %$ilist };
-#dd $ilist;
 
 my $reg8 = qr/([ABHL])/;
 my $val8 = qr/('.'|0x[[:xdigit:]]{2}|25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})/;
@@ -30,7 +25,7 @@ my @parser = (
                 match =>  qr/LD\s+$reg8\s*,\s*$val8/,
                 replace => 'LD$1D $2',
                 doc => <<HERE,
-LD <reg8>, <value>
+LD <reg8>,<value>
 
 Load an 8 bit register with a direct value.
 HERE
@@ -39,7 +34,7 @@ HERE
                 match =>  qr/LD\s+$reg8\s*,\s*$reg8/,
                 replace => 'MV$2$1',
                 doc => <<HERE,
-LD <reg8>, <reg8>
+LD <reg8>,<reg8>
 
 Load an 8 bit register from another 8 bit register.
 HERE
@@ -48,7 +43,7 @@ HERE
                 match =>  qr/LD\s+$reg8\s*,\s*$ad16/,
                 replace => 'LD$1 $2',
                 doc => <<HERE,
-LD <reg8>, <address or label>
+LD <reg8>,<address or label>
 
 Load an 8 bit register from a memory location.
 HERE
@@ -57,7 +52,7 @@ HERE
                 match =>  qr/LD\s+([AB])\s*,\s*\(HL\)/,
                 replace => 'LD$1I',
                 doc => <<HERE,
-LD <reg8>, (HL)
+LD <reg8>,(HL)
 
 Load an 8 bit register from a memory location pointed to by HL.
 HERE
@@ -66,7 +61,7 @@ HERE
                 match =>  qr/LD\s+$ad16\s*,$reg8/,
                 replace => 'ST$2 $1',
                 doc => <<HERE,
-LD <address or label>, <reg8>
+LD <address or label>,<reg8>
 
 Store an 8 bit register to a memory location.
 HERE
@@ -75,7 +70,7 @@ HERE
                 match =>  qr/LD\s+\(HL\)\s*,\s*([AB])/,
                 replace => 'ST$1I',
                 doc => <<HERE,
-LD (HL), <reg8>
+LD (HL),<reg8>
 
 Store an 8 bit register to a memory location pointed to HL.
 HERE
@@ -84,18 +79,18 @@ HERE
                 match =>  qr/LD\s+SP\s*,\s*$ad16/,
                 replace => 'LDSPD $1',
                 doc => <<HERE,
-LD SP, <address or label>
+LD SP,<address or label>
 
-Load SP from a memory location.
+Load SP with a 16 bit value.
 HERE
         },
 	{
                 match =>  qr/LD\s+HL\s*,\s*$ad16/,
                 replace => 'LDHLD $1',
                 doc => <<HERE,
-LD HL, <address or label>
+LD HL,<address or label>
 
-Load HL from a memory location.
+Load HL with a 16 bit value.
 HERE
         },
 	{
@@ -202,7 +197,7 @@ Execute the arithmetic or logic instruction on registers A and B.
 HERE
         },
 	{
-                match =>  qr/(ADD|SUB|AND|OR|XOR|INV|SHL|SHR)\s+A\s*,\s*$val8/,
+                match =>  qr/(ADD|SUB|AND|OR|XOR)\s+A\s*,\s*$val8/,
                 replace => '$1D $2',
                 doc => <<HERE,
 ADD A,<value>
@@ -216,6 +211,19 @@ HERE
         },
 
 );
+
+if ($docs) {
+	usage() if @ARGV;
+	say sort map { "------\n\n$_->{doc}\n" } @parser;
+	exit;
+}
+
+usage() if @ARGV != 1;
+my $infile = $ARGV[0];
+
+my $ilist = YAML::XS::LoadFile('instructions.yaml');
+$ilist = { reverse %$ilist };
+#dd $ilist;
 
 
 my %labels;
