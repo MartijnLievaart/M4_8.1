@@ -106,9 +106,9 @@ HERE
                 match =>  qr/(JMP|JSR|JN?[ZC])\s+$ad16/,
                 replace => '$1 $2',
                 doc => <<HERE,
-LD SP,<address or label>
+JMP, JSR, JZ, JNZ, JC, JNC
 
-Load SP from a memory location.
+Jump, jump to subroutine, conditional jumps. Always takes an absolute 16 bit address (or label).
 HERE
         },
 	{

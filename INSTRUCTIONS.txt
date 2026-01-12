@@ -38,6 +38,12 @@ Invert, shift left or shift right of the A register. Shifts use theh carry flag 
 
 ------
 
+JMP, JSR, JZ, JNZ, JC, JNC
+
+Jump, jump to subroutine, conditional jumps. Always takes an absolute 16 bit address (or label).
+
+------
+
 LD (HL),<reg8>
 
 Store an 8 bit register to a memory location pointed to HL.
@@ -77,12 +83,6 @@ Load an 8 bit register with a direct value.
 LD HL,<address or label>
 
 Load HL with a 16 bit value.
-
-------
-
-LD SP,<address or label>
-
-Load SP from a memory location.
 
 ------
 
