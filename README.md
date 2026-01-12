@@ -2,6 +2,16 @@
 
 This is a definition for a simple 8 bit CPU build in Logisim Evolution. You can write programs for it in assembler and run them in the simulater.
 
+## Status
+
+This is all in alpha state. Everything can and probably will change. To be honest, I think the following will apply:
+
+* The registers are pretty stable, especially on the user level
+* New indirect addressing modes should be added to simplify accessing parameters on the stack and structs through HL.
+* Assembler syntax will change, currently we are unable to differentiate between a 16 bit value or an indirect address.
+* A reset vector should probably be added instead of starting from address 0x0000.
+* Binary representation of instructions can and will change. The assembly language should be relatively stable, but the underlying representation is arbitrary and will change between releases. No binary compatibility (yet).
+
 ## Quick start
 
 * Select an assembler file you want to run and compile it with ./asm.pl.
@@ -18,12 +28,12 @@ I decided the following would apply:
 
 ### Era appropriate
 
-Use only 70s technoligy. Do note I don't have to abide by the same constraints as from that area, in particular I make use of large ROMs to implement functionality.
+Use only 70s technoligy. Do note I don't have to abide by the same constraints as from that era, in particular I make use of large ROMs to implement functionality.
 
 ### As simple as needed, but not simpler.
 
 * No fancy instructions that can also be done with a few already existing instructions.
-* Should be a full fledged processor capable of doing the same as other 8 bit processors from the ERA.
+* Should be a full fledged processor capable of doing the same as other 8 bit processors from the era.
 * This also means this is not CISC, not RISC, but MISC, minimal instruction set computer. Or marginal, whatever rocks your boat. It kind of has the disadvantages of both CISC and RISC without offering any of the benefits, except that it's simple.
 
 ## Simulator limitations/differences
@@ -32,7 +42,7 @@ Using a simulator depends on how good the simulator is. Logisim evolution is qui
 
 ### Idealized generic components
 
-I make heavy use of the generic components of Logisim evolution. These should be replaced by "real" TTL components at some point in the future.
+I make heavy use of the generic components of Logisim evolution. These should be replaced by "real" TTL components at some point in the future. ("real" in quotes as they will still be simulated at first).
 
 ### Race conditions
 
