@@ -2486,6 +2486,7 @@ bd ff 80 0 0 4 61 83
     </comp>
     <comp lib="4" loc="(740,1110)" name="Counter">
       <a name="appearance" val="logisim_evolution"/>
+      <a name="label" val="SPH"/>
     </comp>
     <comp lib="4" loc="(890,530)" name="ROM">
       <a name="addrWidth" val="11"/>
