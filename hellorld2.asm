@@ -10,7 +10,7 @@ PRINT:
 	LD	A,(HL)
 	TST	A,0
 	JZ	RET
-	LD	0x0400,A
+	LD	(0x0400),A
 	CCLR
 	LD	A,L
 	ADD     A,1

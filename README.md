@@ -8,7 +8,6 @@ This is all in alpha state. Everything can and probably will change. To be hones
 
 * The registers are pretty stable, especially on the user level
 * New indirect addressing modes should be added to simplify accessing parameters on the stack and structs through HL.
-* Assembler syntax will change, currently we are unable to differentiate between a 16 bit value or an indirect address.
 * A reset vector should probably be added instead of starting from address 0x0000.
 * Binary representation of instructions can and will change. The assembly language should be relatively stable, but the underlying representation is arbitrary and will change between releases. No binary compatibility (yet).
 

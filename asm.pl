@@ -40,15 +40,6 @@ Load an 8 bit register from another 8 bit register.
 HERE
         },
 	{
-                match =>  qr/LD\s+$reg8\s*,\s*$ad16/,
-                replace => 'LD$1 $2',
-                doc => <<HERE,
-LD <reg8>,<address or label>
-
-Load an 8 bit register from a memory location.
-HERE
-        },
-	{
                 match =>  qr/LD\s+([AB])\s*,\s*\(HL\)/,
                 replace => 'LD$1I',
                 doc => <<HERE,
@@ -58,12 +49,12 @@ Load an 8 bit register from a memory location pointed to by HL.
 HERE
         },
 	{
-                match =>  qr/LD\s+$ad16\s*,$reg8/,
-                replace => 'ST$2 $1',
+                match =>  qr/LD\s+$reg8\s*,\s*\($ad16\)/,
+                replace => 'LD$1 $2',
                 doc => <<HERE,
-LD <address or label>,<reg8>
+LD <reg8>,(<address or label>)
 
-Store an 8 bit register to a memory location.
+Load an 8 bit register from a memory location.
 HERE
         },
 	{
@@ -73,6 +64,15 @@ HERE
 LD (HL),<reg8>
 
 Store an 8 bit register to a memory location pointed to HL.
+HERE
+        },
+	{
+                match =>  qr/LD\s+\($ad16\)\s*,$reg8/,
+                replace => 'ST$2 $1',
+                doc => <<HERE,
+LD (<address or label>),<reg8>
+
+Store an 8 bit register to a memory location.
 HERE
         },
 	{

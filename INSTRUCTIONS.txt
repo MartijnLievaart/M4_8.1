@@ -44,27 +44,27 @@ Jump, jump to subroutine, conditional jumps. Always takes an absolute 16 bit add
 
 ------
 
+LD (<address or label>),<reg8>
+
+Store an 8 bit register to a memory location.
+
+------
+
 LD (HL),<reg8>
 
 Store an 8 bit register to a memory location pointed to HL.
 
 ------
 
-LD <address or label>,<reg8>
+LD <reg8>,(<address or label>)
 
-Store an 8 bit register to a memory location.
+Load an 8 bit register from a memory location.
 
 ------
 
 LD <reg8>,(HL)
 
 Load an 8 bit register from a memory location pointed to by HL.
-
-------
-
-LD <reg8>,<address or label>
-
-Load an 8 bit register from a memory location.
 
 ------
 
