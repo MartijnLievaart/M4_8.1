@@ -217,6 +217,36 @@ instructions:
     - dbus(a), load(b)
     - dbus(tl), load(a)
 
+  - mne: PSHA
+    ph:
+    - load(mem), abus(sp), dbus(a), spop
+  - mne: PSHB
+    ph:
+    - load(mem), abus(sp), dbus(b), spop
+  - mne: PSHH
+    ph:
+    - load(mem), abus(sp), dbus(h), spop
+  - mne: PSHL
+    ph:
+    - load(mem), abus(sp), dbus(l), spop
+
+  - mne: POPA
+    ph:
+    - spop, spup
+    - load(a), abus(sp), dbus(mem)
+  - mne: POPB
+    ph:
+    - spop, spup
+    - load(b), abus(sp), dbus(mem)
+  - mne: POPH
+    ph:
+    - spop, spup
+    - load(h), abus(sp), dbus(mem)
+  - mne: POPL
+    ph:
+    - spop, spup
+    - load(l), abus(sp), dbus(mem)
+
   - mne: CCLR
     ph:
     - dbus(cnst), load(c)
