@@ -19,7 +19,7 @@ GetOptions(
 
 my $reg8 = qr/([ABHL])/;
 my $val8 = qr/('.'|0x[[:xdigit:]]{2}|25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})/;
-my $ad16 = qr/(0x[[:xdigit:]]{4}|\w+)/;
+my $ad16 = qr/(0x[[:xdigit:]]{4}|\w+(?:\s*[-+]\s*\d+)?)/;
 my @parser = (
 	{
                 match =>  qr/LD\s+$reg8\s*,\s*$val8/,
@@ -259,7 +259,12 @@ sub parse_val
 		return;
 	};
 	/^(\w+)$/ and do {
-		push @patch, [ $org, $1 ];
+		push @patch, [ $org, $1, 0 ];
+		$org += 2;
+		return;
+	};
+	/^(\w+)\s*([-+]\s*\d+)$/ and do {
+		push @patch, [ $org, $1, 0+$2 ];
 		$org += 2;
 		return;
 	};
@@ -305,10 +310,12 @@ while (<$in>) {
 	}
 	die "Syntax error at line $.: $line\n";
 }
+my $end = $org;
+
 #dd @patch;
 for (@patch) {
-	my ($org,$lbl) = $_->@*;
-	my $target = $labels{$lbl} // die "Unknown label $lbl";
+	my ($org, $lbl, $off) = $_->@*;
+	my $target = ($labels{$lbl} // die "Unknown label $lbl") + $off;
 	$mem[$org++] = ($target&0xff00)>>8;
 	$mem[$org++] = $target&0x00ff;
 }
@@ -331,13 +338,19 @@ while (my ($lbl, $o) = each %labels) {
 }
 
 open my $list, '>', 'list.lst' or die $!;
-for my $org (sort { $a <=> $b } keys %lst) {
+my @orgs = sort { $a <=> $b } keys %lst;
+while (defined(my $org = shift @orgs)) {
 	if ($slebal{$org}) {
 		for ($slebal{$org}->@*) {
 			printf $list "%04X\t%s:\n", $org, $_;
 		}
 	}
-	printf $list "%04X\t%s", $org, $lst{$org};
+	my $next = $orgs[0] // $end;
+	printf $list "%04X\t", $org;
+	for my $n ($org .. $next-1) {
+		printf($list " %02x", $mem[$n]//0);
+	}
+	printf $list "\n%04X\t%s", $org, $lst{$org};
 }
 
 exit;
